@@ -2,7 +2,7 @@
   description = "LiveBeats";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs";
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -21,23 +21,23 @@
 
 
         devShells = {
-          default = pkgs.callPackage ./pkgs/dev-shell { inherit pkgs; };
+          default = devShells.dev;
 
           dev = import ./pkgs/dev-shell {
             inherit pkgs;
             db_name = "db_dev";
-            MIX_ENV = "dev";
+            # MIX_ENV = "dev";
           };
-          test = import .pkgs/dev-shell {
-            inherit pkgs;
-            db_name = "db_test";
-            MIX_ENV = "test";
-          };
-          prod = import .pkgs/dev-shell {
-            inherit pkgs;
-            db_name = "db_prod";
-            MIX_ENV = "prod";
-          };
+          # test = import .pkgs/dev-shell {
+          #   inherit pkgs;
+          #   db_name = "db_test";
+          #   MIX_ENV = "test";
+          # };
+          # prod = import .pkgs/dev-shell {
+          #   inherit pkgs;
+          #   db_name = "db_prod";
+          #   MIX_ENV = "prod";
+          # };
         };
 
         checks = {

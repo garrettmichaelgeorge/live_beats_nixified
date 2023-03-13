@@ -1,7 +1,10 @@
-{ pkgs }:
+{ pkgs, db_name }:
 
 pkgs.mkShell {
   name = "live-beats-shell";
+
+  # inherit MIX_ENV;
+
   buildInputs = [
     pkgs.beam.packages.erlangR24.elixir_1_12
     pkgs.beam.packages.erlangR24.elixir_ls
@@ -10,6 +13,8 @@ pkgs.mkShell {
     pkgs.nixpkgs-fmt
     pkgs.nixpkgs-lint
     pkgs.rnix-lsp
+    pkgs.overmind
+    pkgs.nodePackages.tailwindcss
   ] ++ pkgs.lib.optional pkgs.stdenv.isLinux pkgs.inotify-tools
   ++ pkgs.lib.optionals pkgs.stdenv.isDarwin
     (with pkgs.darwin.apple_sdk.frameworks; [
@@ -19,27 +24,17 @@ pkgs.mkShell {
 
   shellHook = ''
     # Generic shell variables
-    # Postgres environment variables
-    export PGDATA=$PWD/postgres_data
-    export PGHOST=$PWD/postgres
-    export LOG_PATH=$PWD/postgres/LOG
-    export PGDATABASE=postgres
-    export DATABASE_URL="postgresql:///postgres?host=$PGHOST"
+    export LANG=en_US.utf-8
+    export ERL_AFLAGS="-kernel shell_history enabled"
+    export PHX_HOST=localhost
+    export FLY_APP_NAME=live_beats
+    export RELEASE_COOKIE=UnsecureTestOnlyCookie
 
-    if [ ! -d $PWD/postgres ]; then
-      mkdir -p $PWD/postgres
-    fi
+    # Postgres
+    export DATABASE_URL="ecto://postgres:postgres@localhost:5432/live_beats_prod"
+    export POOL_SIZE=15
 
-    if [ ! -d $PGDATA ]; then
-      echo 'Initializing postgresql database...'
-      initdb $PGDATA --auth=trust >/dev/null
-    fi
-
-    # As an example, you can run any CLI commands to customize your development shell
-    # pg_ctl start -l $LOG_PATH -o "-p 5432 -c listen_addresses='*' -c unix_socket_directories=$PWD/postgres -c unix_socket_permissions=0700"
-    # psql -p 5435 postgres -c 'create extension if not exists postgis' || true
-
-    # This creates mix variables and data folders within your project, so as not to pollute your system
+    # Scope Mix and Hex to the project directory
     mkdir -p .nix-mix
     mkdir -p .nix-hex
     export MIX_HOME=$PWD/.nix-mix
