@@ -1,13 +1,20 @@
 { pkgs, db_name }:
 
+let
+  erlang = pkgs.beam.packages.erlangR24;
+  elixir = erlang.elixir.override {
+    version = "1.12.3";
+    sha256 = "Jo9ZC5cSBVpjVnGZ8tEIUKOhW9uvJM/h84+VcnrT0R0=";
+  };
+in
 pkgs.mkShell {
   name = "live-beats-shell";
 
   # inherit MIX_ENV;
 
   buildInputs = [
-    pkgs.beam.packages.erlangR24.elixir_1_12
-    pkgs.beam.packages.erlangR24.elixir_ls
+    elixir
+    erlang.elixir_ls
     pkgs.mix2nix
     pkgs.postgresql_14
     pkgs.nixpkgs-fmt
