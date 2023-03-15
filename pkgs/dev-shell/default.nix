@@ -15,6 +15,7 @@ pkgs.mkShell {
   buildInputs = [
     elixir
     erlang.elixir_ls
+    erlang.hex
     pkgs.mix2nix
     pkgs.postgresql_14
     pkgs.nixpkgs-fmt
