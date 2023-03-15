@@ -36,6 +36,10 @@ jobs:
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
           extraPullNames: nix-community
 
-      # Note: this would only work if Elixir is included in the Nix shell
-      - run: nix develop --command mix compile
+      # FIXME: requires mix deps.get to be run first to avoid the error:
+      # "the dependency is not available, run "mix deps.get""
+      # NOTE: this would only work if Elixir is included in the Nix shell
+      # - run: nix develop --command mix compile
+      #   continue-on-error: true
+
       - run: nix build
