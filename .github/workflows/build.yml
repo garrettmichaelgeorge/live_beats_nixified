@@ -10,6 +10,10 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
 
+    env:
+      LIVE_BEATS_GITHUB_CLIENT_ID: ${{ secrets.LIVE_BEATS_GITHUB_CLIENT_ID }}
+      LIVE_BEATS_GITHUB_CLIENT_SECRET: ${{ secrets.LIVE_BEATS_GITHUB_CLIENT_SECRET }}
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
