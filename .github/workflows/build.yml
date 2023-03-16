@@ -43,3 +43,16 @@ jobs:
       #   continue-on-error: true
 
       - run: nix build
+
+      # To get image and layered image into binary cache
+      - run: nix build .#image
+      - run: nix build .#layeredImage
+      - run: nix develop --command docker load < result
+
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: hello-image
+          path: result
+          if-no-files-found: error
+          retention-days: 10
