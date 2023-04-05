@@ -24,6 +24,7 @@ pkgs.mkShell {
     pkgs.rnix-lsp
     pkgs.docker
     # pkgs.nodePackages.tailwindcss
+    pkgs.gzip
   ] ++ pkgs.lib.optional pkgs.stdenv.isLinux pkgs.inotify-tools
   ++ pkgs.lib.optionals pkgs.stdenv.isDarwin
     (with pkgs.darwin.apple_sdk.frameworks; [
