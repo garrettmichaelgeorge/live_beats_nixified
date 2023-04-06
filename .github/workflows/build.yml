@@ -8,7 +8,13 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    strategy:
+      # Don't cancel concurrent jobs if one fails
+      fail-fast: false
+      matrix:
+        os: [ "ubuntu-latest", "macos-latest" ]
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Check out repository
