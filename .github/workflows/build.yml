@@ -42,13 +42,13 @@ jobs:
 
       - run: nix build .#image
 
-      - run: nix develop --command zcat result | docker load
-      - run: nix develop --command docker network create live-beats-net
+      - run: zcat result | docker load
+      - run: docker network create live-beats-net
       - run: nix develop --command mix deps.get
 
       - name: Start Postgres container
         run: |
-          nix develop --command docker run \
+          docker run \
             --name live-beats-db \
             --publish 5432:5432 \
             --env POSTGRES_PASSWORD=postgres \
@@ -64,7 +64,7 @@ jobs:
 
       - name: Start app container
         run: |
-          nix develop --command docker run \
+          docker run \
             --rm \
             --name live-beats \
             --network live-beats-net \
