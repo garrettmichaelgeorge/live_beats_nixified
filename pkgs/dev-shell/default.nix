@@ -1,4 +1,4 @@
-{ pkgs, db_name }:
+{ pkgs, db_name, inputsFrom }:
 
 let
   erlang = pkgs.beam.packages.erlangR24;
@@ -12,17 +12,20 @@ pkgs.mkShell {
 
   # inherit MIX_ENV;
 
+  inherit inputsFrom;
+
   buildInputs = [
-    elixir
+    # elixir
     erlang.elixir_ls
-    erlang.hex
+    # erlang.hex
     pkgs.mix2nix
-    pkgs.postgresql_14
     pkgs.nixpkgs-fmt
     pkgs.nixpkgs-lint
     pkgs.rnix-lsp
-    pkgs.overmind
-    pkgs.nodePackages.tailwindcss
+    pkgs.docker
+    pkgs.postgresql
+    # pkgs.nodePackages.tailwindcss
+    pkgs.gzip
   ] ++ pkgs.lib.optional pkgs.stdenv.isLinux pkgs.inotify-tools
   ++ pkgs.lib.optionals pkgs.stdenv.isDarwin
     (with pkgs.darwin.apple_sdk.frameworks; [
@@ -45,6 +48,7 @@ pkgs.mkShell {
     # Scope Mix and Hex to the project directory
     mkdir -p .nix-mix
     mkdir -p .nix-hex
+    export MIX_PATH="${erlang.hex}/lib/erlang/lib/hex/ebin"
     export MIX_HOME=$PWD/.nix-mix
     export HEX_HOME=$PWD/.nix-hex
     export PATH=$MIX_HOME/bin:$PATH
