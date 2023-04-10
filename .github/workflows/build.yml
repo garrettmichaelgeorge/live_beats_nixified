@@ -52,16 +52,18 @@ jobs:
 
       # FIXME: requires mix deps.get to be run first to avoid the error:
       # "the dependency is not available, run "mix deps.get""
-      # NOTE: this would only work if Elixir is included in the Nix shell
-      # - run: nix develop --command mix compile
-      #   continue-on-error: true
 
-      - run: nix build .#mix-release
+      - name: Build Mix release
+        run: nix build .#mix-release
 
-      - run: nix build .#image
+      - name: Build image
+        run: nix build .#image
 
-      - run: nix develop --command bash -c "zcat result | docker load"
-      - run: nix develop --command docker network create live-beats-net
+      - name: Load image
+        run: nix develop --command bash -c "zcat result | docker load"
+
+      - name: Create docker network
+        run: nix develop --command docker network create live-beats-net
 
       - name: Start Postgres container
         run: |
@@ -74,6 +76,9 @@ jobs:
             --detach \
             postgres
 
+      # NOTE: These would only work if Elixir is included in the Nix shell
+      # - run: nix develop --command mix compile
+      #   continue-on-error: true
       # TODO: bootstrap Postgres user & run DB migrations inside a proper script
       # and remove Mix dependency
       - run: MIX_ENV=prod nix develop --command mix local.rebar --force
