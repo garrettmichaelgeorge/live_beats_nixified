@@ -54,9 +54,9 @@
               config =
                 {
                   Env = [
-                    "LANG=C.utf8"
-                    "LANGUAGE=en_US:en"
-                    "LC_ALL=C.utf8"
+                    "LANG='C.utf8'"
+                    "LANGUAGE='en_US:en'"
+                    "LC_ALL='C.utf8'"
                   ]
                     # FIXME: ipv6 features need to be configured at runtime, not build time
                     # ++ pkgs.lib.optional pkgs.stdenv.isLinux [
@@ -64,7 +64,7 @@
                     #   # Note this is a limitation of the Docker daemon, not
                     #   # containers per se.
                     #   # See https://docs.docker.com/config/daemon/ipv6/
-                    #   "ECTO_IPV6=true"
+                    #   "ECTO_IPV6='true'"
                     #   "ERL_AFLAGS='-proto_dist inet6_tcp'"
                     # ]
                   ;
