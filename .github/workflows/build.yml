@@ -50,13 +50,12 @@ jobs:
 
       - run: nix build .#image
 
-      - run: zcat result | docker load
-      - run: docker network create live-beats-net
-      - run: nix develop --command mix deps.get
+      - run: nix develop --command bash -c "zcat result | docker load"
+      - run: nix develop --command docker network create live-beats-net
 
       - name: Start Postgres container
         run: |
-          docker run \
+          nix develop --command docker run \
             --name live-beats-db \
             --publish 5432:5432 \
             --env POSTGRES_PASSWORD=postgres \
@@ -67,12 +66,13 @@ jobs:
 
       # TODO: bootstrap Postgres user & run DB migrations inside a proper script
       # and remove Mix dependency
+      - run: nix develop --command mix deps.get
       - run: nix develop --command mix ecto.create
       - run: nix develop --command mix ecto.migrate
 
       - name: Start app container
         run: |
-          docker run \
+          nix develop --command docker run \
             --rm \
             --name live-beats \
             --network live-beats-net \
