@@ -12,7 +12,9 @@ jobs:
       # Don't cancel concurrent jobs if one fails
       fail-fast: false
       matrix:
-        os: [ "ubuntu-latest", "macos-latest" ]
+        os:
+          - ubuntu-latest
+          # - macos-latest
 
     runs-on: ${{ matrix.os }}
 
