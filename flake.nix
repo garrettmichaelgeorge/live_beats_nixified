@@ -57,14 +57,17 @@
                     "LANG=C.utf8"
                     "LANGUAGE=en_US:en"
                     "LC_ALL=C.utf8"
-                  ] ++ pkgs.lib.optional pkgs.stdenv.isLinux [
-                    # IPV6 is only supported in Linux-based hosts.
-                    # Note this is a limitation of the Docker daemon, not
-                    # containers per se.
-                    # See https://docs.docker.com/config/daemon/ipv6/
-                    "ECTO_IPV6=true"
-                    "ERL_AFLAGS='-proto_dist inet6_tcp'"
-                  ];
+                  ]
+                    # FIXME: ipv6 features need to be configured at runtime, not build time
+                    # ++ pkgs.lib.optional pkgs.stdenv.isLinux [
+                    #   # IPV6 is only supported in Linux-based hosts.
+                    #   # Note this is a limitation of the Docker daemon, not
+                    #   # containers per se.
+                    #   # See https://docs.docker.com/config/daemon/ipv6/
+                    #   "ECTO_IPV6=true"
+                    #   "ERL_AFLAGS='-proto_dist inet6_tcp'"
+                    # ]
+                  ;
                   Cmd = [ "${packages.mix-release-linux}/bin/server" ];
                   # TODO: symlink the nix store path for the app to a global one like /app
                   # For now, when connecting to the container, Elixir release
