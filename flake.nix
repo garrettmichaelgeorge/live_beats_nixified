@@ -38,7 +38,7 @@
                   --publish 5432:5432 \
                   --env-file .env \
                   --rm \
-                  -v pg_data:/var/lib/postgresql/data \
+                  -v pgdata:/var/lib/postgresql/data \
                   --network ${dockerNetworkName} \
                   postgres
               '';
@@ -86,24 +86,11 @@
           };
 
           devShells = {
-            default = devShells.dev;
-
-            dev = import ./pkgs/dev-shell {
+            default = import ./pkgs/dev-shell {
               inherit pkgs;
-              inputsFrom = [ packages.mix-release ];
-              db_name = "live_beats_dev";
-              # MIX_ENV = "dev";
+              mix-release = packages.mix-release;
+              database_name = "live_beats_prod";
             };
-            # test = import .pkgs/dev-shell {
-            #   inherit pkgs;
-            #   db_name = "db_test";
-            #   MIX_ENV = "test";
-            # };
-            # prod = import .pkgs/dev-shell {
-            #   inherit pkgs;
-            #   db_name = "db_prod";
-            #   MIX_ENV = "prod";
-            # };
           };
 
           checks = {
