@@ -14,12 +14,17 @@
           dockerNetworkName = "live-beats-net";
           pkgs = import nixpkgs { inherit system; };
           pkgsLinux = import nixpkgs { system = "x86_64-linux"; };
+
+          mix-release = pkgs.callPackage ./pkgs/mix-release { inherit self; };
+          beamPackages = mix-release.passthru.beamPackages;
+          hex = mix-release.hex;
+          elixir = mix-release.elixir;
         in
         rec {
           packages = {
+            inherit mix-release;
             default = packages.mix-release;
 
-            mix-release = pkgs.callPackage ./pkgs/mix-release { inherit self; };
             mix-release-linux = pkgsLinux.callPackage ./pkgs/mix-release { inherit self; };
 
             image = pkgsLinux.callPackage ./pkgs/image {
@@ -85,17 +90,12 @@
             };
           };
 
-          devShells = {
-            default = import ./pkgs/dev-shell {
-              inherit pkgs;
-              mix-release = packages.mix-release;
-              database_name = "live_beats_prod";
-            };
+          devShells.default = import ./pkgs/dev-shell {
+            inherit pkgs beamPackages hex elixir mix-release;
+            database_name = "live_beats_prod";
           };
 
-          checks = {
-            mix-release = packages.mix-release;
-          };
+          checks = { mix-release = packages.mix-release; };
 
           formatter = pkgs.nixpkgs-fmt;
         });

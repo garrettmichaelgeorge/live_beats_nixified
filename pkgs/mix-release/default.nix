@@ -22,15 +22,12 @@ beamPackages.mixRelease {
 
   compileFlags = [ "--warnings-as-errors" ];
 
-  LANG = "C.utf8";
-  LANGUAGE = "en_US:en";
-  LC_ALL = "C.utf8";
-
   mixNixDeps = import ./../deps { inherit lib beamPackages; };
 
   nativeBuildInputs = [
     esbuild
     nodePackages.tailwindcss
+    glibcLocales
   ];
 
   buildInputs = [
@@ -38,6 +35,7 @@ beamPackages.mixRelease {
     gnused
     locale
     openssl
+    glibcLocales # https://nixos.org/manual/nixpkgs/unstable/#locales
   ];
 
   passthru = { inherit beamPackages; };
