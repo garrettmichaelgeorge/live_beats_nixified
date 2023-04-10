@@ -42,3 +42,6 @@ result
 
 # Local Postgres data directory
 /pgdata/
+
+# Secrets
+.env
