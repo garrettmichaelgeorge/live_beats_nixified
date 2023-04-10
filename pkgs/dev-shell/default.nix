@@ -23,6 +23,7 @@ pkgs.mkShell {
     pkgs.nixpkgs-lint
     pkgs.rnix-lsp
     pkgs.docker
+    pkgs.postgresql
     # pkgs.nodePackages.tailwindcss
     pkgs.gzip
   ] ++ pkgs.lib.optional pkgs.stdenv.isLinux pkgs.inotify-tools
