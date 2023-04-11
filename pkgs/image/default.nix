@@ -1,7 +1,11 @@
+# Build the Phoenix app inside a Docker image
+# Note for now, this requires a Linux-based builder.
+# Users of macOS Darwin can use a NixOS VM via `nix run nixpkgs#darwin.builder`.
+# See https://nixos.org/manual/nixpkgs/unstable/#sec-darwin-builder
+
+{ pkgs, name, mixReleaseLinux }:
+
 # https://nixos.org/manual/nixpkgs/unstable/#sec-pkgs-dockerTools
-
-{ pkgs, name, mix-release-linux }:
-
 pkgs.dockerTools.buildImage {
   name = name;
   tag = "latest";
@@ -10,7 +14,7 @@ pkgs.dockerTools.buildImage {
   # https://github.com/moby/moby/blob/master/image/spec/v1.2.md#image-json-field-descriptions
   config =
     {
-      Cmd = [ "${mix-release-linux}/bin/server" ];
+      Cmd = [ "${mixReleaseLinux}/bin/server" ];
       Env = [
         "LANG='C.utf8'"
         "LANGUAGE='en_US:en'"
@@ -32,7 +36,7 @@ pkgs.dockerTools.buildImage {
       #   bin/live_beats remote
       #   bin/live_beats rpc "IO.inspect(LiveBeats.some_function())"
       # See https://hexdocs.pm/mix/Mix.Tasks.Release.html#module-running-the-release
-      WorkingDir = "${mix-release-linux}";
+      WorkingDir = "${mixReleaseLinux}";
     };
 
   # https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/build-support/buildenv/default.nix
@@ -69,6 +73,6 @@ pkgs.dockerTools.buildImage {
   #  useradd -r -g nobody
   #  chown nobody /app
   #  sed -i '/C.utf8/s/^# //g' /etc/locale.gen && locale-gen
-  #  ln -s "${mix-release-linux}" /app
+  #  ln -s "${mixReleaseLinux}" /app
   #'';
 }

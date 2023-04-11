@@ -13,10 +13,11 @@ let
   # Set locale for Erlang VM
   # https://nixos.org/manual/nixpkgs/unstable/#locales
   # https://github.com/NixOS/nixpkgs/blob/fd531dee22c9a3d4336cc2da39e8dd905e8f3de4/pkgs/development/libraries/glibc/locales.nix#L10
-  glibcLocalesScoped = glibcLocales.override {
-    allLocales = false;
-    locales = [ "en_US.UTF-8" ];
-  };
+  glibcLocalesScoped =
+    lib.optional stdenv.isLinux (glibcLocales.override {
+      allLocales = false;
+      locales = [ "en_US.UTF-8/UTF-8" ];
+    });
 in
 # https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/development/beam-modules/mix-release.nix
 beamPackages.mixRelease {
@@ -35,16 +36,14 @@ beamPackages.mixRelease {
   nativeBuildInputs = [
     esbuild
     nodePackages.tailwindcss
-    glibcLocalesScoped
-  ];
+  ] ++ glibcLocalesScoped;
 
   buildInputs = [
     coreutils
     gnused
     locale
     openssl
-    glibcLocalesScoped
-  ];
+  ] ++ glibcLocalesScoped;
 
   passthru = { inherit beamPackages; };
 
