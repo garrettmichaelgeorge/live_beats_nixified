@@ -1,37 +1,30 @@
-{ pkgs, db_name, inputsFrom }:
+{ pkgs, database_name, mixRelease, beamPackages, hex, elixir }:
 
 let
-  erlang = pkgs.beam.packages.erlangR24;
-  elixir = erlang.elixir.override {
-    version = "1.12.3";
-    sha256 = "Jo9ZC5cSBVpjVnGZ8tEIUKOhW9uvJM/h84+VcnrT0R0=";
-  };
+  platformSpecificInputs = with pkgs;
+    lib.optional stdenv.isLinux inotify-tools
+    ++ lib.optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
+      CoreFoundation
+      CoreServices
+    ]);
 in
 pkgs.mkShell {
   name = "live-beats-shell";
 
-  # inherit MIX_ENV;
-
-  inherit inputsFrom;
+  inputsFrom = [ mixRelease ];
 
   buildInputs = [
-    # elixir
-    erlang.elixir_ls
-    # erlang.hex
+    elixir
+    hex
+    beamPackages.elixir_ls
     pkgs.mix2nix
     pkgs.nixpkgs-fmt
     pkgs.nixpkgs-lint
     pkgs.rnix-lsp
     pkgs.docker
     pkgs.postgresql
-    # pkgs.nodePackages.tailwindcss
     pkgs.gzip
-  ] ++ pkgs.lib.optional pkgs.stdenv.isLinux pkgs.inotify-tools
-  ++ pkgs.lib.optionals pkgs.stdenv.isDarwin
-    (with pkgs.darwin.apple_sdk.frameworks; [
-      CoreFoundation
-      CoreServices
-    ]);
+  ] ++ platformSpecificInputs;
 
   shellHook = ''
     # Generic shell variables
@@ -42,16 +35,16 @@ pkgs.mkShell {
     export RELEASE_COOKIE=UnsecureTestOnlyCookie
 
     # Postgres
-    export DATABASE_URL="ecto://postgres:postgres@localhost:5432/live_beats_prod"
+    export DATABASE_URL=ecto://postgres:postgres@localhost:5432/${database_name}
     export POOL_SIZE=15
 
     # Scope Mix and Hex to the project directory
     mkdir -p .nix-mix
     mkdir -p .nix-hex
-    export MIX_PATH="${erlang.hex}/lib/erlang/lib/hex/ebin"
-    export MIX_HOME=$PWD/.nix-mix
-    export HEX_HOME=$PWD/.nix-hex
-    export PATH=$MIX_HOME/bin:$PATH
-    export PATH=$HEX_HOME/bin:$PATH
+    export MIX_PATH=${beamPackages.hex}/lib/erlang/lib/hex/ebin
+    export MIX_HOME="$PWD/.nix-mix"
+    export HEX_HOME="$PWD/.nix-hex"
+    export PATH="$MIX_HOME/bin:$PATH"
+    export PATH="$HEX_HOME/bin:$PATH"
   '';
 }

@@ -36,7 +36,12 @@ npm-debug.log
 /.direnv/
 
 # Ignore Nix artifacts
-/postgres_data
 .nix-mix
 .nix-hex
 result
+
+# Local Postgres data directory
+/pgdata/
+
+# Secrets
+.env
