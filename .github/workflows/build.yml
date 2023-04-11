@@ -50,11 +50,7 @@ jobs:
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
           extraPullNames: nix-community
 
-      # FIXME: requires mix deps.get to be run first to avoid the error:
-      # "the dependency is not available, run "mix deps.get""
-
-      - name: Build Mix release
-        run: nix build .#mixRelease
+      - run: nix flake check --keep-going
 
       - name: Build image
         run: nix build .#image
