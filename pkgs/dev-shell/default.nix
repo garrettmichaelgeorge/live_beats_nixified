@@ -1,4 +1,4 @@
-{ pkgs, database_name, mix-release, beamPackages, hex, elixir }:
+{ pkgs, database_name, mixRelease, beamPackages, hex, elixir }:
 
 let
   platformSpecificInputs = with pkgs; lib.optional stdenv.isLinux inotify-tools
@@ -10,7 +10,7 @@ in
 pkgs.mkShell {
   name = "live-beats-shell";
 
-  inputsFrom = [ mix-release ];
+  inputsFrom = [ mixRelease ];
 
   buildInputs = [
     elixir

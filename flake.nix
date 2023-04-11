@@ -15,21 +15,24 @@
           pkgs = import nixpkgs { inherit system; };
           pkgsLinux = import nixpkgs { system = "x86_64-linux"; };
 
-          mix-release = pkgs.callPackage ./pkgs/mix-release { inherit self; };
-          beamPackages = mix-release.passthru.beamPackages;
-          hex = mix-release.hex;
-          elixir = mix-release.elixir;
+          mixNixDeps = with pkgs; import ./../deps { inherit lib beamPackages; };
+          mixRelease = pkgs.callPackage ./pkgs/mix-release { inherit self mixNixDeps; };
+          mixReleaseLinux = pkgsLinux.callPackage ./pkgs/mix-release {
+            inherit self mixNixDeps;
+          };
+
+          beamPackages = mixRelease.passthru.beamPackages;
+          hex = mixRelease.hex;
+          elixir = mixRelease.elixir;
         in
         rec {
           packages = {
-            inherit mix-release;
-            default = packages.mix-release;
-
-            mix-release-linux = pkgsLinux.callPackage ./pkgs/mix-release { inherit self; };
+            inherit mixRelease mixReleaseLinux;
+            default = packages.mixRelease;
 
             image = pkgsLinux.callPackage ./pkgs/image {
               name = imageName;
-              mix-release-linux = packages.mix-release-linux;
+              mixReleaseLinux = packages.mixReleaseLinux;
             };
 
             # Start Postgres in a container
@@ -50,7 +53,7 @@
             };
 
             # Build image and load it into Docker
-            build-image = pkgs.writeShellApplication {
+            buildImage = pkgs.writeShellApplication {
               name = "build-image";
               runtimeInputs = with pkgs; [ nix docker gzip ];
               text = ''
@@ -79,7 +82,7 @@
               '';
             };
 
-            connect-to-container = pkgs.writeShellApplication {
+            connectContainer = pkgs.writeShellApplication {
               name = "connect-to-container";
               runtimeInputs = with pkgs; [ docker ];
               text = ''
@@ -91,12 +94,11 @@
           };
 
           devShells.default = import ./pkgs/dev-shell {
-            inherit pkgs beamPackages hex elixir mix-release;
+            inherit pkgs beamPackages hex elixir mixRelease;
             database_name = "live_beats_prod";
           };
 
-          checks = { mix-release = packages.mix-release; };
-
+          checks.mixRelease = packages.mixRelease;
           formatter = pkgs.nixpkgs-fmt;
         });
 }

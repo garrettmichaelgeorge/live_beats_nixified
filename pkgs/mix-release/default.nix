@@ -1,14 +1,24 @@
-{ self, pkgs }:
+{ self, pkgs, mixNixDeps }:
 
 with pkgs;
 let
   beamPackages = beam.packages.erlangR24;
+  hex = beamPackages.hex.override { inherit elixir; };
+
   elixir = beamPackages.elixir.override {
     version = "1.14.4";
     sha256 = "sha256-mV40pSpLrYKT43b8KXiQsaIB+ap+B4cS2QUxUoylm7c=";
   };
-  hex = beamPackages.hex.override { inherit elixir; };
+
+  # Set locale for Erlang VM
+  # https://nixos.org/manual/nixpkgs/unstable/#locales
+  # https://github.com/NixOS/nixpkgs/blob/fd531dee22c9a3d4336cc2da39e8dd905e8f3de4/pkgs/development/libraries/glibc/locales.nix#L10
+  glibcLocalesScoped = glibcLocales.override {
+    allLocales = false;
+    locales = [ "en_US.UTF-8" ];
+  };
 in
+# https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/development/beam-modules/mix-release.nix
 beamPackages.mixRelease {
   pname = "live-beats";
   version = "0.1.0";
@@ -18,16 +28,14 @@ beamPackages.mixRelease {
 
   MIX_ENV = "prod";
 
-  inherit elixir hex;
+  inherit elixir hex mixNixDeps;
 
   compileFlags = [ "--warnings-as-errors" ];
-
-  mixNixDeps = import ./../deps { inherit lib beamPackages; };
 
   nativeBuildInputs = [
     esbuild
     nodePackages.tailwindcss
-    glibcLocales
+    glibcLocalesScoped
   ];
 
   buildInputs = [
@@ -35,7 +43,7 @@ beamPackages.mixRelease {
     gnused
     locale
     openssl
-    glibcLocales # https://nixos.org/manual/nixpkgs/unstable/#locales
+    glibcLocalesScoped
   ];
 
   passthru = { inherit beamPackages; };

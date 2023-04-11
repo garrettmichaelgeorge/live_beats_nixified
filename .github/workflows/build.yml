@@ -54,7 +54,7 @@ jobs:
       # "the dependency is not available, run "mix deps.get""
 
       - name: Build Mix release
-        run: nix build .#mix-release
+        run: nix build .#mixRelease
 
       - name: Build image
         run: nix build .#image
