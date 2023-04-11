@@ -1,11 +1,12 @@
 { pkgs, database_name, mixRelease, beamPackages, hex, elixir }:
 
 let
-  platformSpecificInputs = with pkgs; lib.optional stdenv.isLinux inotify-tools
+  platformSpecificInputs = with pkgs;
+    lib.optional stdenv.isLinux inotify-tools
     ++ lib.optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
-    CoreFoundation
-    CoreServices
-  ]);
+      CoreFoundation
+      CoreServices
+    ]);
 in
 pkgs.mkShell {
   name = "live-beats-shell";
