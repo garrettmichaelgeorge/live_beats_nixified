@@ -1,7 +1,13 @@
-{ self, pkgs, mixNixDeps }:
+{ self, pkgs }:
 
 with pkgs;
 let
+  pname = "live-beats";
+  version = "0.1.0";
+
+  # `self` refers to the root of the project.
+  src = self;
+
   beamPackages = beam.packages.erlangR24;
   hex = beamPackages.hex.override { inherit elixir; };
 
@@ -18,18 +24,22 @@ let
       allLocales = false;
       locales = [ "en_US.UTF-8/UTF-8" ];
     });
+
 in
 # https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/development/beam-modules/mix-release.nix
 beamPackages.mixRelease {
-  pname = "live-beats";
-  version = "0.1.0";
+  inherit pname version src elixir hex;
 
-  # `self` refers to the root of the project.
-  src = self;
+  mixEnv = "prod";
 
-  MIX_ENV = "prod";
-
-  inherit elixir hex mixNixDeps;
+  mixFodDeps = beamPackages.fetchMixDeps {
+    pname = "mix-deps-${pname}";
+    inherit src version;
+    sha256 = "sha256-JYdArhEP6t0nBchiEwpCxZUeB3M0lRfqVpLu7sy09Uw=";
+    # Default is "prod"; an empty string includes all dependencies (dev, test,
+    # prod, etc.)
+    mixEnv = "test";
+  };
 
   compileFlags = [ "--warnings-as-errors" ];
 
@@ -50,6 +60,16 @@ beamPackages.mixRelease {
   MIX_ESBUILD_PATH = esbuild;
   MIX_TAILWIND_PATH = nodePackages.tailwindcss;
   # MIX_PATH = "${beamPackages.hex}/lib/erlang/lib/hex/ebin";
+
+  doCheck = true;
+
+  checkPhase = ''
+    runHook preCheck
+
+    MIX_ENV=test mix test --warnings-as-errors
+
+    runHook postCheck
+  '';
 
   # For external task you need a workaround for the no deps check flag.
   # https://github.com/phoenixframework/phoenix/issues/2690
