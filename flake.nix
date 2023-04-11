@@ -15,7 +15,7 @@
           pkgs = import nixpkgs { inherit system; };
           pkgsLinux = import nixpkgs { system = "x86_64-linux"; };
 
-          mixNixDeps = with pkgs; import ./../deps { inherit lib beamPackages; };
+          mixNixDeps = with pkgs; import ./pkgs/mix-deps { inherit lib beamPackages; };
           mixRelease = pkgs.callPackage ./pkgs/mix-release { inherit self mixNixDeps; };
           mixReleaseLinux = pkgsLinux.callPackage ./pkgs/mix-release {
             inherit self mixNixDeps;
