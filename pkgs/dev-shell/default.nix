@@ -15,8 +15,9 @@ pkgs.mkShell {
 
   buildInputs = [
     elixir
-    hex
+    beamPackages.hex
     beamPackages.elixir_ls
+    beamPackages.rebar3
     pkgs.mix2nix
     pkgs.nixpkgs-fmt
     pkgs.nixpkgs-lint

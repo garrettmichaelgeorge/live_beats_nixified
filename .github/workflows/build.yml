@@ -8,15 +8,21 @@ on:
 jobs:
   build:
     name: Build
-    strategy:
-      # Don't cancel concurrent jobs if one fails
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-latest
-          # - macos-latest
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports: [ "5432:5432" ]
 
-    runs-on: ${{ matrix.os }}
     env:
       RELEASE_COOKIE: ${{ secrets.RELEASE_COOKIE }}
       FLY_APP_NAME: ${{ secrets.FLY_APP_NAME }}
@@ -26,9 +32,10 @@ jobs:
       LIVE_BEATS_SERVER_IP: 127.0.0.1
       PHX_HOST: localhost
       PORT: 4000
-      DATABASE_URL: ecto://postgres:postgres@live-beats-db:5432/live_beats_prod
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/live_beats_test
 
     steps:
+      # Setup
       - name: Check out repository
         uses: actions/checkout@v2
 
@@ -50,31 +57,31 @@ jobs:
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
           extraPullNames: nix-community
 
-      # FIXME: requires mix deps.get to be run first to avoid the error:
-      # "the dependency is not available, run "mix deps.get""
+      # - name: Start Postgres container
+      #   run: |
+      #     nix develop --command docker run \
+      #       --name live-beats-db \
+      #       --publish 5432:5432 \
+      #       --env POSTGRES_PASSWORD=postgres \
+      #       --rm \
+      #       --detach \
+      #       postgres
 
-      - name: Build Mix release
-        run: nix build .#mixRelease
+      - name: Get GitHub services network name
+        id: services-network
+        run: |
+          docker network ls --format {{.Name}} | grep github | xargs -I '<>' echo "name=<>" >> $GITHUB_OUTPUT
 
+      # Build and test Mix release
+      - name: Build and test
+        run: nix flake check --keep-going --verbose --print-build-logs
+
+      # Build and test Docker image
       - name: Build image
-        run: nix build .#image
+        run: nix build .#image --verbose --print-build-logs
 
       - name: Load image
         run: nix develop --command bash -c "zcat result | docker load"
-
-      - name: Create docker network
-        run: nix develop --command docker network create live-beats-net
-
-      - name: Start Postgres container
-        run: |
-          nix develop --command docker run \
-            --name live-beats-db \
-            --publish 5432:5432 \
-            --env POSTGRES_PASSWORD=postgres \
-            --rm \
-            --network live-beats-net \
-            --detach \
-            postgres
 
       # NOTE: These would only work if Elixir is included in the Nix shell
       # - run: nix develop --command mix compile
@@ -92,7 +99,7 @@ jobs:
           nix develop --command docker run \
             --rm \
             --name live-beats \
-            --network live-beats-net \
+            --network ${{ steps.services-network.outputs.name }} \
             --env RELEASE_COOKIE=${{ secrets.RELEASE_COOKIE }} \
             --env FLY_APP_NAME=${{ secrets.FLY_APP_NAME }} \
             --env SECRET_KEY_BASE=${{ secrets.SECRET_KEY_BASE }} \
