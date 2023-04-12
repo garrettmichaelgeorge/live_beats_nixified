@@ -32,7 +32,7 @@ jobs:
       LIVE_BEATS_SERVER_IP: 127.0.0.1
       PHX_HOST: localhost
       PORT: 4000
-      DATABASE_URL: ecto://postgres:postgres@localhost:5432/live_beats_prod
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/live_beats_test
 
     steps:
       # Setup
@@ -74,11 +74,11 @@ jobs:
 
       # Build and test Mix release
       - name: Build and test
-        run: nix flake check --keep-going
+        run: nix flake check --keep-going --verbose --print-build-logs
 
       # Build and test Docker image
       - name: Build image
-        run: nix build .#image
+        run: nix build .#image --verbose --print-build-logs
 
       - name: Load image
         run: nix develop --command bash -c "zcat result | docker load"
