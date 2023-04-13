@@ -8,7 +8,7 @@ let
   # `self` refers to the root of the project.
   src = self;
 
-  beamPackages = beam.packages.erlangR24;
+  beamPackages = beam.packages.erlangR25;
   hex = beamPackages.hex.override { inherit elixir; };
 
   elixir = beamPackages.elixir.override {
