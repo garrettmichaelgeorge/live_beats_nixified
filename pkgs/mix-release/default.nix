@@ -125,7 +125,7 @@ beamPackages.mixRelease {
     description = "Play music together with Phoenix LiveView!";
     license = lib.licenses.mit;
 
-    mainProgram = "bin/server";
+    mainProgram = "server";
   };
 }
 
