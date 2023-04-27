@@ -11,10 +11,12 @@ let
   beamPackages = beam.packages.erlangR24;
   hex = beamPackages.hex.override { inherit elixir; };
 
-  elixir = beamPackages.elixir.override {
-    version = "1.14.4";
-    sha256 = "sha256-mV40pSpLrYKT43b8KXiQsaIB+ap+B4cS2QUxUoylm7c=";
-  };
+  elixir = beamPackages.elixir_1_14;
+  # To override the Elixir version, uncomment the following
+  # elixir = beamPackages.elixir.override {
+  #   version = "1.14.4";
+  #   sha256 = "sha256-mV40pSpLrYKT43b8KXiQsaIB+ap+B4cS2QUxUoylm7c=";
+  # };
 
   # Set locale for Erlang VM
   # https://nixos.org/manual/nixpkgs/unstable/#locales
@@ -123,16 +125,14 @@ beamPackages.mixRelease {
   '';
 
   postInstall = ''
-    for script in $out/bin/*; do
+    shopt -s extglob
+    for script in $out/bin/!(*.bat); do
+      echo "Wrapping Mix-generated script $out/bin/$script to include system"
+      echo "dependencies in the PATH"
+
       wrapProgram "$script" \
         --suffix PATH : ${lib.makeBinPath [ coreutils gawk gnused ]}
     done
-
-      # substituteInPlace ./bin/* ./lib \
-      #   --replace "sed" "$gnused/bin/sed" \
-      #   --replace "awk" "$gawk/bin/awk" \
-      #   --replace "od" "$coreutils/bin/od" \
-      #   --replace "dd" "$coreutils/bin/dd" \
   '';
 
   meta = {
@@ -143,4 +143,3 @@ beamPackages.mixRelease {
     mainProgram = "server";
   };
 }
-
