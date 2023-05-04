@@ -1,4 +1,4 @@
-{ pkgs, database_name, mixRelease, beamPackages, hex, elixir }:
+{ pkgs, database_name, mixRelease, beamPackages, hex, elixir, myPostgresql }:
 
 let
   platformSpecificInputs = with pkgs;
@@ -8,12 +8,10 @@ let
       CoreServices
     ]);
 
-  myPostgres = pkgs.postgresql_14;
-
   # Overmind Procfile
   # https://github.com/DarthSim/overmind#overmind-environment
   overmindProcfile = pkgs.writeText "Procfile" ''
-    db: ${myPostgres}/bin/postgres -k /tmp
+    db: ${myPostgresql}/bin/postgres -k /tmp
   '';
 in
 pkgs.mkShell {
@@ -26,7 +24,7 @@ pkgs.mkShell {
     beamPackages.hex
     beamPackages.rebar3
     elixir
-    myPostgres
+    myPostgresql
     pkgs.docker
     pkgs.gzip
     pkgs.mix2nix

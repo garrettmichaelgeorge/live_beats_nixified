@@ -22,6 +22,8 @@
           beamPackages = mixRelease.passthru.beamPackages;
           hex = mixRelease.hex;
           elixir = mixRelease.elixir;
+
+          myPostgresql = pkgs.postgresql_14;
         in
         rec {
           packages = {
@@ -83,7 +85,7 @@
               # Needed before running `overmind start`
               initdb = pkgs.writeShellApplication {
                 name = "initdb";
-                runtimeInputs = with pkgs; [ postgresql ];
+                runtimeInputs = with pkgs; [ myPostgresql ];
                 text = ''
                   set -eux
                   PGDATA="./pgdata"
@@ -111,7 +113,7 @@
               # Bootstrap local database; like `mix ecto.create` without Mix
               bootstrapdb = pkgs.writeShellApplication {
                 name = "bootstrapdb";
-                runtimeInputs = with pkgs; [ postgresql ];
+                runtimeInputs = with pkgs; [ myPostgresql ];
                 text = builtins.readFile ./bootstrapdb.sh;
               };
 
@@ -147,7 +149,7 @@
             };
 
           devShells.default = import ./pkgs/dev-shell {
-            inherit pkgs beamPackages hex elixir mixRelease;
+            inherit pkgs beamPackages hex elixir mixRelease myPostgresql;
             database_name = "live_beats_prod";
           };
 
