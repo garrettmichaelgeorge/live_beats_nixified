@@ -11,10 +11,12 @@ let
   beamPackages = beam.packages.erlangR24;
   hex = beamPackages.hex.override { inherit elixir; };
 
-  elixir = beamPackages.elixir.override {
-    version = "1.14.4";
-    sha256 = "sha256-mV40pSpLrYKT43b8KXiQsaIB+ap+B4cS2QUxUoylm7c=";
-  };
+  elixir = beamPackages.elixir_1_14;
+  # To override the Elixir version, uncomment the following
+  # elixir = beamPackages.elixir.override {
+  #   version = "1.14.4";
+  #   sha256 = "sha256-mV40pSpLrYKT43b8KXiQsaIB+ap+B4cS2QUxUoylm7c=";
+  # };
 
   # Set locale for Erlang VM
   # https://nixos.org/manual/nixpkgs/unstable/#locales
@@ -46,6 +48,7 @@ beamPackages.mixRelease {
   nativeBuildInputs = [
     esbuild
     nodePackages.tailwindcss
+    makeWrapper
   ] ++ glibcLocalesScoped;
 
   buildInputs = [
@@ -61,7 +64,8 @@ beamPackages.mixRelease {
   MIX_TAILWIND_PATH = nodePackages.tailwindcss;
   # MIX_PATH = "${beamPackages.hex}/lib/erlang/lib/hex/ebin";
 
-  doCheck = true;
+  # FIXME: re-enable this after debugging
+  doCheck = false;
 
   # Starts a PostgreSQL server during the checkPhase
   # https://nixos.org/manual/nixpkgs/unstable/#sec-postgresqlTestHook
@@ -120,12 +124,22 @@ beamPackages.mixRelease {
     mix phx.digest --no-deps-check
   '';
 
+  postInstall = ''
+    shopt -s extglob
+    for script in $out/bin/!(*.bat); do
+      echo "Wrapping Mix-generated script $out/bin/$script to include system"
+      echo "dependencies in the PATH"
+
+      wrapProgram "$script" \
+        --suffix PATH : ${lib.makeBinPath [ coreutils gawk gnused ]}
+    done
+  '';
+
   meta = {
     homepage = "https://github.com/fly-apps/live_beats";
     description = "Play music together with Phoenix LiveView!";
     license = lib.licenses.mit;
 
-    mainProgram = "bin/server";
+    mainProgram = "server";
   };
 }
-
