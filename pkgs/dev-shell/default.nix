@@ -61,5 +61,34 @@ pkgs.mkShell {
 
     # Overmind
     export OVERMIND_PROCFILE="${overmindProcfile}"
+
+    cat <<EOF
+
+    Welcome to the LiveBeats development shell! 
+
+    To initialize the database:
+
+        nix run .#initdb
+
+    To start local services in the background, including the database:
+
+        overmind start -D
+
+    To stop local services:
+
+        overmind stop
+
+    To fetch Mix deps:
+
+        mix deps.get
+
+    To start the app in development:
+        
+        iex -S mix phx.server
+
+    Make sure to set LIVE_BEATS_GITHUB_CLIENT_ID and
+    LIVE_BEATS_GITHUB_CLIENT_SECRET before compiling the app in MIX_ENV=prod.
+
+    EOF
   '';
 }
