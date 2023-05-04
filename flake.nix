@@ -87,8 +87,8 @@
               };
 
               # Start Postgres in a container
-              startdb = pkgs.writeShellApplication {
-                name = "startdb";
+              startdbContainer = pkgs.writeShellApplication {
+                name = "startdb-container";
                 runtimeInputs = with pkgs; [ docker ];
                 # FIXME: need to mount bootstrapdb script in a reproducible way 
                 text = ''
@@ -113,7 +113,7 @@
               runContainer = mkApp "${runContainer}/bin/run-container";
               connectContainer = mkApp "${connectContainer}/bin/connect-container";
               bootstrapdb = mkApp "${bootstrapdb}/bin/bootstrapdb";
-              startdb = mkApp "${startdb}/bin/startdb";
+              startdbContainer = mkApp "${startdbContainer}/bin/startdb-container";
             };
 
           devShells.default = import ./pkgs/dev-shell {
