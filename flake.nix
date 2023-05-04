@@ -79,6 +79,35 @@
                 '';
               };
 
+              # Initialize local Postgres cluster for development
+              # Needed before running `overmind start`
+              initdb = pkgs.writeShellApplication {
+                name = "initdb";
+                runtimeInputs = with pkgs; [ postgresql ];
+                text = ''
+                  set -eux
+                  PGDATA="./pgdata"
+                  POSTGRES_USER="postgres"
+
+                  stopDb() {
+                    pg_ctl stop
+                  }
+                  trap stopDb EXIT
+
+                  if [[ ! -d "$PGDATA" ]]; then
+                    initdb "$PGDATA"
+                  fi
+
+                  pg_ctl start
+
+                  createuser --createdb --superuser "$POSTGRES_USER" || \
+                    echo "database user $POSTGRES_USER already exists, skipping"
+
+                  createdb "$PGDATA" || \
+                      echo "database $PGDATA already exists, skipping"
+                '';
+              };
+
               # Bootstrap local database; like `mix ecto.create` without Mix
               bootstrapdb = pkgs.writeShellApplication {
                 name = "bootstrapdb";
@@ -113,6 +142,7 @@
               runContainer = mkApp "${runContainer}/bin/run-container";
               connectContainer = mkApp "${connectContainer}/bin/connect-container";
               bootstrapdb = mkApp "${bootstrapdb}/bin/bootstrapdb";
+              initdb = mkApp "${initdb}/bin/initdb";
               startdbContainer = mkApp "${startdbContainer}/bin/startdb-container";
             };
 
