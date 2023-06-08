@@ -1,4 +1,49 @@
-# LiveBeats
+# LiveBeats Nixified
+
+This is a proof of concept for using Nix in a real-world Phoenix project.
+
+In this project, Nix is used to:
+- Manage a development environment with `nix develop`, including language versions and all system dependencies
+  - All standard Elixir project commands should work inside of this environment, e.g. `mix test`
+- Manage all CI/CD dependencies (with a couple of exceptions that are specific to GitHub Actions)
+- Package a number of utility scripts that can be run with `nix run .#name-of-script`
+  - These are essentially Bash scripts with dependencies built in, so they should "just work" on any Unix-based machine
+- Build a Mix release of the project with `nix build`
+- Build a Docker image with the Mix release inside with `nix build .#image`
+
+Essentially, in this project, Nix is configured to manage things up until the point where a deployable artifact is created. At that point, the image can be deployed using a deployment tool of choice, like Terraform.
+
+For more on this approach, see [this article](https://determinate.systems/posts/nix-to-kubernetes).
+
+## Prerequisites
+
+- Nix with flakes enabled (I recommend [this installer](https://zero-to-nix.com/start/install)). 
+- (Optional) [direnv](https://direnv.net/) for convenience when working with Nix
+- (Optional) While this repo includes Postgres, some developers prefer not to use the Postgres CLI directly. If that is you, you can manage Postgres using the method of your choice.
+  - Coming soon, this repo will make using Postgres even easier and more portable
+- Nix handles the rest – you don't need to install anything, even Elixir
+
+## Getting set up and working with the project
+
+0. (Optional but recommended) Connect to the project's build cache to speed up initial setup:
+  a. Install [Cachix](https://www.cachix.org/), the cache provider client: `nix profile install nixpkgs#cachix`
+  b. Connect to the [build cache](https://app.cachix.org/cache/garrettmichaelgeorge-public#pull): `cachix use garrettmichaelgeorge-public`
+1. Clone this repo and `cd` into it
+2. Enter the Nix development environment. 2 options:
+  a. (Optional but recommended) Using direnv: `direnv allow`, or
+  b. Using the Nix CLI directly: `nix develop`
+3. Start the database
+  a. Coming soon, you will be able to run `overmind start` and everything will be handled
+  b. For now, you will need to run Postgres using the method of your choice. If you're on macOS and don't have Postgres set up, [Postgres.app](https://postgresapp.com/) is a great way to get started. LiveBeatsNixified does include a full Postgres package in its development environment, so if you're inclined, you can also run `postgres` CLI commands directly after entering the dev environment in step 2.
+4. Run the tests: `mix test`
+5. Compile a release: `mix release`
+6. Use Nix to compile the release: `nix build`
+7. Build the app in a Docker image: `nix build .#image`
+8. If you want to run the app locally, see the GitHub OAuth instructions below (this is for a specific LiveBeats feature)
+
+---
+
+## Upstream README from the official LiveBeats project
 
 Play music together with Phoenix LiveView!
 
