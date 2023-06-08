@@ -19,17 +19,20 @@ For more on this approach, see [this article](https://determinate.systems/posts/
 
 - Nix with flakes enabled (I recommend [this installer](https://zero-to-nix.com/start/install)). 
 - (Optional) [direnv](https://direnv.net/) for convenience when working with Nix
-- (Optional) While this repo includes Postgres, some developers prefer not to use the Postgres CLI directly. If that is you, you can manage Postgres using the method of your choice.
+- (Optional) Postgres. 
+  - While this repo includes Postgres, some developers prefer not to use the Postgres CLI directly. If that is you, you can manage Postgres using the method of your choice.
   - Coming soon, this repo will make using Postgres even easier and more portable
-- Nix handles the rest – you don't need to install anything, even Elixir
+
+Nix handles the rest – you don't need to install anything.
 
 ## Getting set up
+
+After cloning this repo locally:
 
 0. (Optional but recommended) Connect to the project's build cache to speed up initial setup:
   a. Install [Cachix](https://www.cachix.org/), the cache provider client: `nix profile install nixpkgs#cachix`
   b. Connect to the [build cache](https://app.cachix.org/cache/garrettmichaelgeorge-public#pull): `cachix use garrettmichaelgeorge-public`
-1. Clone this repo and `cd` into it
-2. Enter the Nix development environment: `nix develop`. 
+1. Enter the Nix development environment: `nix develop`. 
   - Alternatively, you can use direnv to load the environment automatically: `direnv allow`.
   
 ## Working with the project
