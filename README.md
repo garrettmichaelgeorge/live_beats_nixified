@@ -1,6 +1,8 @@
 # LiveBeats Nixified
 
-This is a proof of concept for using Nix in a real-world Phoenix project. It Nixifies a well-known reference Phoenix app called [LiveBeats](https://github.com/fly-apps/live_beats), which you can demo at [livebeats.fly.dev](https://github.com/fly-apps/live_beats).
+This is a proof of concept for using Nix in a real-world Phoenix project. Try it out and see what you think!
+
+It adds Nix configuration around a well-known reference Phoenix app called [LiveBeats](https://github.com/fly-apps/live_beats), which you can demo at [livebeats.fly.dev](https://github.com/fly-apps/live_beats).
 
 In this project, Nix is used to:
 - Manage a development environment with `nix develop`, including language versions and all system dependencies
@@ -18,9 +20,9 @@ For more on this approach, see [this article](https://determinate.systems/posts/
 ## Prerequisites
 
 - Nix with flakes enabled (I recommend [this installer](https://zero-to-nix.com/start/install)). 
-- (Optional) [direnv](https://direnv.net/) for convenience when working with Nix
-- (Optional) Postgres. 
-  - While this repo includes Postgres, some developers prefer not to use the Postgres CLI directly. If that is you, you can manage Postgres using the method of your choice.
+- (Optional) [direnv](https://direnv.net/#getting-started) for convenience when working with Nix
+- (Optional) Postgres
+  - While this repo's Nix development environment does include Postgres, some developers prefer not to use the Postgres CLI directly. If that is you, you can manage Postgres using an alternate method of your choice (like [this one](https://postgresapp.com/) for macOS).
   - Coming soon, this repo will make using Postgres even easier and more portable
 
 Nix handles the rest – you don't need to install anything.
@@ -29,17 +31,21 @@ Nix handles the rest – you don't need to install anything.
 
 After cloning this repo locally:
 
-0. (Optional but recommended) Connect to the project's build cache to speed up initial setup:
-  a. Install [Cachix](https://www.cachix.org/), the cache provider client: `nix profile install nixpkgs#cachix`
-  b. Connect to the [build cache](https://app.cachix.org/cache/garrettmichaelgeorge-public#pull): `cachix use garrettmichaelgeorge-public`
-1. Enter the Nix development environment: `nix develop`. 
-  - Alternatively, you can use direnv to load the environment automatically: `direnv allow`.
+1. _Optional but recommended:_ Connect to the project's build cache to speed up initial setup:
+   - Install [Cachix](https://www.cachix.org/), the cache provider client: `nix profile install nixpkgs#cachix`
+   - Connect to the [build cache](https://app.cachix.org/cache/garrettmichaelgeorge-public#pull): `cachix use garrettmichaelgeorge-public`
+2. Enter the Nix development environment: `nix develop` 
+   - This will take a few minutes the first time but should be very fast thereafter.
+
+Alternatively, you can use direnv to load the environment automatically: `direnv allow`.
+
+Now you should be ready to start developing!
   
 ## Working with the project
 
 1. Start the database
-  a. Coming soon, you will be able to run a single command and everything will be handled
-  b. For now, you will need to start Postgres yourself. If you're on macOS and don't have Postgres set up, [Postgres.app](https://postgresapp.com/) is a great way to get started. Docker [offers](https://hub.docker.com/_/postgres) another way. LiveBeatsNixified does include a full Postgres package in its development environment, so if you're inclined, you can also run `postgres` CLI commands directly.
+   - Coming soon, you will be able to run a single command and everything will be handled.
+   - For now, you will need to start Postgres yourself. If you're on macOS and don't have Postgres set up, [Postgres.app](https://postgresapp.com/) is a great way to get started. Docker [offers](https://hub.docker.com/_/postgres) another way. LiveBeatsNixified does include a full Postgres package in its development environment, so if you're inclined, you can also run `postgres` CLI commands directly.
 1. Run the tests: `mix test`
 1. Compile a release: `mix release`
 1. Use Nix to compile the release: `nix build`
